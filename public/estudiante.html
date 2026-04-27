@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UCA Academic Sanctuary - Estudiante</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="/socket.io/socket.io.js"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-[#f5f6f8] text-[#1a1a2e] h-screen overflow-hidden">
+
+    <div id="toastNotification" class="fixed top-5 left-1/2 -translate-x-1/2 px-6 py-3 rounded-lg shadow-lg z-50 transition-all duration-300 opacity-0 pointer-events-none translate-y-[-20px]"></div>
+
+    <div class="flex h-screen w-full">
+        <!-- Sidebar -->
+        <aside class="w-64 bg-white flex flex-col flex-shrink-0 border-r border-gray-100 h-screen">
+            <div class="p-8 mb-4">
+                <h3 class="text-xl font-black text-[#0a1628] tracking-tight leading-tight">BIENESTAR UCA</h3>
+                <p class="text-[10px] font-medium text-gray-400 tracking-[0.2em] uppercase mt-1">Academic Sanctuary</p>
+            </div>
+            
+            <nav class="px-4 flex-1 space-y-1">
+                <a onclick="showSubPage('page-student-home')" class="sidebar-nav-item active flex items-center px-4 py-3 text-[#0a1628] font-bold transition-all duration-200 cursor-pointer" data-page="page-student-home">
+                    <svg class="w-[18px] h-[18px] mr-4 stroke-current fill-none stroke-2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg>
+                    <span class="text-[13px]">Inicio</span>
+                </a>
+                <a onclick="showSubPage('page-student-chats')" class="sidebar-nav-item flex items-center px-4 py-3 text-gray-500 font-medium transition-all duration-200 cursor-pointer hover:text-[#0a1628]" data-page="page-student-chats">
+                    <svg class="w-[18px] h-[18px] mr-4 stroke-current fill-none stroke-2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                    <span class="text-[13px]">Chats Activos</span>
+                </a>
+                <a onclick="showSubPage('page-student-monitors')" class="sidebar-nav-item flex items-center px-4 py-3 text-gray-500 font-medium transition-all duration-200 cursor-pointer hover:text-[#0a1628]" data-page="page-student-monitors">
+                    <svg class="w-[18px] h-[18px] mr-4 stroke-current fill-none stroke-2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    <span class="text-[13px]">Estado Monitores</span>
+                </a>
+                <a onclick="showSubPage('page-student-history')" class="sidebar-nav-item flex items-center px-4 py-3 text-gray-500 font-medium transition-all duration-200 cursor-pointer hover:text-[#0a1628]" data-page="page-student-history">
+                    <svg class="w-[18px] h-[18px] mr-4 stroke-current fill-none stroke-2" viewBox="0 0 24 24"><polyline points="22,12 18,12 15,21 9,3 6,12 2,12"/></svg>
+                    <span class="text-[13px]">Historial</span>
+                </a>
+                <a onclick="showSubPage('page-student-settings')" class="sidebar-nav-item flex items-center px-4 py-3 text-gray-500 font-medium transition-all duration-200 cursor-pointer hover:text-[#0a1628]" data-page="page-student-settings">
+                    <svg class="w-[18px] h-[18px] mr-4 stroke-current fill-none stroke-2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-4.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                    <span class="text-[13px]">Configuración</span>
+                </a>
+            </nav>
+
+            <div class="px-4 py-8 border-t border-gray-50 space-y-1">
+                <a onclick="showSubPage('page-student-support')" class="sidebar-nav-item flex items-center px-4 py-3 text-gray-500 font-medium transition-all duration-200 cursor-pointer hover:text-[#0a1628]" data-page="page-student-support">
+                    <svg class="w-[18px] h-[18px] mr-4 stroke-current fill-none stroke-2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                    <span class="text-[13px]">Soporte</span>
+                </a>
+                <a href="index.html" class="flex items-center px-4 py-3 text-red-600 font-medium transition-all duration-200 cursor-pointer hover:text-red-700">
+                    <svg class="w-[18px] h-[18px] mr-4 stroke-current fill-none stroke-2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16,17 21,12 16,7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                    <span class="text-[13px]">Salir De La Cuenta</span>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 overflow-y-auto bg-[#f5f6f8] relative">
+            
+            <!-- Student Home -->
+            <div id="page-student-home" class="sub-page p-8 md:p-10 max-w-7xl mx-auto">
+                <div class="mb-10 flex flex-col items-start">
+                    <div class="flex items-center gap-3 mb-1">
+                        <h1 class="text-2xl font-extrabold text-[#0a1628]">Buenos días, Carlos</h1>
+                        <svg class="w-6 h-6 text-[#0a1628] fill-none stroke-current stroke-2" viewBox="0 0 24 24">
+                            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41M12 7a5 5 0 1 0 0 10 5 5 0 0 0 0-10z"/>
+                        </svg>
+                    </div>
+                    <p class="text-sm text-gray-600">Bienvenido a tu espacio de bienestar académico. ¿Cómo podemos ayudarte hoy?</p>
+                </div>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+                    <div class="bg-white rounded-xl p-6 border border-[#e5e7eb] shadow-sm">
+                        <div class="w-10 h-10 rounded-lg flex items-center justify-center mb-4 bg-gray-50 border border-[#e5e7eb]">
+                            <svg class="w-5 h-5 text-[#0a1628] fill-none stroke-current stroke-2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                        </div>
+                        <div class="text-3xl font-extrabold text-[#0a1628] mb-1">3</div>
+                        <div class="text-[11px] font-bold text-gray-500 uppercase tracking-wider">Chats este mes</div>
+                    </div>
+                    <div class="bg-white rounded-xl p-6 border border-[#e5e7eb] shadow-sm">
+                        <div class="w-10 h-10 rounded-lg flex items-center justify-center mb-4 bg-gray-50 border border-[#e5e7eb]">
+                            <svg class="w-5 h-5 text-[#0a1628] fill-none stroke-current stroke-2" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22,4 12,14.01 9,11.01"/></svg>
+                        </div>
+                        <div class="text-3xl font-extrabold text-[#0a1628] mb-1">12</div>
+                        <div class="text-[11px] font-bold text-gray-500 uppercase tracking-wider">Sesiones completadas</div>
+                    </div>
+                    <div class="bg-white rounded-xl p-6 border border-[#e5e7eb] shadow-sm">
+                        <div class="w-10 h-10 rounded-lg flex items-center justify-center mb-4 bg-gray-50 border border-[#e5e7eb]">
+                            <svg class="w-5 h-5 text-[#0a1628] fill-none stroke-current stroke-2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14"/></svg>
+                        </div>
+                        <div class="text-3xl font-extrabold text-[#0a1628] mb-1">45m</div>
+                        <div class="text-[11px] font-bold text-gray-500 uppercase tracking-wider">Tiempo promedio</div>
+                    </div>
+                    <div class="bg-white rounded-xl p-6 border border-[#e5e7eb] shadow-sm">
+                        <div class="w-10 h-10 rounded-lg flex items-center justify-center mb-4 bg-gray-50 border border-[#e5e7eb]">
+                            <svg class="w-5 h-5 text-[#0a1628] fill-none stroke-current stroke-2" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                        </div>
+                        <div class="text-3xl font-extrabold text-[#0a1628] mb-1">89%</div>
+                        <div class="text-[11px] font-bold text-gray-500 uppercase tracking-wider">Satisfacción</div>
+                    </div>
+                </div>
+
+
+                <div class="flex items-center gap-2 mb-6">
+                    <div class="w-1.5 h-6 bg-[#0a1628]"></div>
+                    <h3 class="text-[15px] font-bold text-[#0a1628] uppercase tracking-widest">Actividad Reciente</h3>
+                </div>
+                <div class="bg-white rounded-xl border border-[#e5e7eb] overflow-hidden shadow-sm">
+                    <div class="px-6 py-5 flex items-center border-b border-gray-50 hover:bg-gray-50 transition-colors">
+                        <div class="w-2 h-2 rounded-full mr-6 bg-[#0a1628]"></div>
+                        <div class="flex-1 text-[14px] font-medium text-gray-700">Sesión con Monitor Académico - Facultad de Ingeniería</div>
+                        <div class="text-[12px] font-bold text-gray-400">Hoy, 10:06 AM</div>
+                    </div>
+                    <div class="px-6 py-5 flex items-center border-b border-gray-50 hover:bg-gray-50 transition-colors">
+                        <div class="w-2 h-2 rounded-full mr-6 bg-[#0a1628]"></div>
+                        <div class="flex-1 text-[14px] font-medium text-gray-700">Archivo compartido: Cronograma_Octubre.pdf</div>
+                        <div class="text-[12px] font-bold text-gray-400">Ayer, 3:30 PM</div>
+                    </div>
+                    <div class="px-6 py-5 flex items-center border-b border-gray-50 hover:bg-gray-50 transition-colors">
+                        <div class="w-2 h-2 rounded-full mr-6 bg-[#0a1628]"></div>
+                        <div class="flex-1 text-[14px] font-medium text-gray-700">Sesión con Monitor Académico - Gestión del tiempo</div>
+                        <div class="text-[12px] font-bold text-gray-400">12 Oct, 11:00 AM</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Student Chats Activos -->
+            <div id="page-student-chats" class="sub-page hidden p-8 md:p-10 max-w-7xl mx-auto">
+                <div class="mb-10">
+                    <h1 class="text-2xl font-extrabold text-[#0a1628] mb-1">Chats Activos</h1>
+                    <p class="text-sm text-gray-600">Tus conversaciones recientes con monitores académicos</p>
+                </div>
+                <div class="space-y-4 max-w-4xl">
+                    <div onclick="openChat('Monitor Académico - Ingeniería')" class="flex items-center p-5 bg-white rounded-xl border border-[#e5e7eb] cursor-pointer transition-all hover:border-[#0a1628] hover:shadow-md">
+                        <div class="relative flex-shrink-0">
+                            <div class="w-12 h-12 bg-[#0a1628] rounded-xl flex items-center justify-center">
+                                <svg class="w-6 h-6 fill-none stroke-white stroke-[1.5]" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                            </div>
+                            <span class="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-500 border-2 border-white rounded-full"></span>
+                        </div>
+                        <div class="ml-5 flex-1 overflow-hidden">
+                            <h4 class="text-base font-extrabold text-[#0a1628]">Monitor Académico</h4>
+                            <p class="text-sm text-gray-500 truncate">Facultad de Ingeniería - Entiendo perfectamente. Es común sentir esa presión...</p>
+                        </div>
+                        <div class="ml-5 text-right">
+                            <div class="text-[11px] font-bold text-gray-400 uppercase mb-2">10:06 AM</div>
+                            <div class="inline-block px-2.5 py-1 bg-[#0a1628] text-white text-[10px] font-extrabold rounded-full">2</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Student Historial -->
+            <div id="page-student-history" class="sub-page hidden p-8 md:p-10 max-w-7xl mx-auto">
+                <div class="mb-10">
+                    <h1 class="text-2xl font-extrabold text-[#0a1628] mb-1">Historial de Conversaciones</h1>
+                    <p class="text-sm text-gray-600">Revisa todas tus sesiones y conversaciones pasadas</p>
+                </div>
+                <div class="flex gap-4 mb-8 max-w-4xl">
+                    <div class="flex-1 relative">
+                        <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 stroke-2 fill-none" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                        <input type="text" placeholder="Buscar en historial..." class="w-full pl-11 pr-4 py-3 bg-white border border-[#e5e7eb] rounded-xl text-sm focus:outline-none focus:border-[#0a1628] shadow-sm">
+                    </div>
+                    <button class="px-6 py-3 bg-white border border-[#e5e7eb] rounded-xl text-sm font-bold text-[#0a1628] hover:bg-gray-50 flex items-center gap-2 shadow-sm">
+                        <svg class="w-4 h-4 stroke-current fill-none stroke-2" viewBox="0 0 24 24"><path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z"/></svg>
+                        Filtrar
+                    </button>
+                </div>
+                <div class="space-y-3 max-w-4xl">
+                    <div class="flex items-center p-5 bg-white rounded-xl border border-[#e5e7eb] cursor-pointer hover:border-[#0a1628] transition-all">
+                        <div class="w-11 h-11 bg-gray-50 border border-[#e5e7eb] rounded-xl flex items-center justify-center mr-5">
+                            <svg class="w-5 h-5 text-[#0a1628] fill-none stroke-current stroke-2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                        </div>
+                        <div class="flex-1">
+                            <h4 class="text-sm font-extrabold text-[#0a1628]">Sesión de Gestión del Tiempo</h4>
+                            <p class="text-[12px] text-gray-500">Monitor Académico - Facultad de Ingeniería</p>
+                        </div>
+                        <div class="text-[11px] font-bold text-gray-400">15 OCT 2024</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Student Configuración -->
+            <div id="page-student-settings" class="sub-page hidden p-8 md:p-10">
+                <div class="mb-10">
+                    <h1 class="text-2xl font-extrabold text-[#0a1628] mb-1">Configuración</h1>
+                    <p class="text-sm text-gray-600">Personaliza tu experiencia en Academic Sanctuary</p>
+                </div>
+                <div class="space-y-10 max-w-2xl">
+                    <!-- Profile Section -->
+                    <div class="bg-white p-8 rounded-2xl border border-[#e5e7eb] shadow-sm">
+                        <div class="flex items-center gap-2 mb-8">
+                            <div class="w-1 h-4 bg-[#0a1628]"></div>
+                            <h3 class="text-xs font-black text-[#0a1628] uppercase tracking-widest">Perfil</h3>
+                        </div>
+                        <div class="flex flex-col sm:flex-row items-center gap-8 mb-8">
+                            <!-- Avatar -->
+                            <div class="relative group/avatar flex-shrink-0">
+                                <div class="w-32 h-32 rounded-full overflow-hidden border-2 border-[#e5e7eb] shadow-sm">
+                                    <img id="settings-avatar" src="https://image.qwenlm.ai/public_source/86c0ed85-d19e-4e1b-a8f5-72cdb594ef24/18c71744a-8a6b-4666-9933-adb749520eb0.png" class="user-avatar w-full h-full object-cover">
+                                </div>
+                                <input type="file" id="avatar-upload" accept="image/*" class="hidden">
+                                <label for="avatar-upload" class="absolute inset-0 flex items-center justify-center bg-black/40 rounded-full opacity-0 group-hover/avatar:opacity-100 transition-opacity cursor-pointer">
+                                    <div class="text-center">
+                                        <svg class="w-6 h-6 stroke-white fill-none stroke-2 mx-auto mb-1" viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                                        <span class="text-white text-[9px] font-black uppercase tracking-widest">Cambiar Foto</span>
+                                    </div>
+                                </label>
+                            </div>
+                            <!-- User Info -->
+                            <div class="flex-1 space-y-4 w-full">
+                                <div>
+                                    <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Nombre completo</label>
+                                    <input type="text" value="Carlos Morales" disabled class="w-full px-4 py-3 bg-gray-50 border border-[#e5e7eb] rounded-xl text-sm font-bold text-[#0a1628] cursor-not-allowed opacity-70">
+                                </div>
+                                <div>
+                                    <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Estado del usuario</label>
+                                    <select id="user-status-select" class="w-full px-4 py-3 bg-white border border-[#e5e7eb] rounded-xl text-sm font-bold text-[#0a1628] focus:outline-none focus:border-[#0a1628] appearance-none cursor-pointer" style="background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%239ca3af%22%20stroke-width%3D%222%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22/%3E%3C/svg%3E'); background-repeat: no-repeat; background-position: right 1rem center;">
+                                        <option value="disponible">Disponible</option>
+                                        <option value="ocupado">Ocupado</option>
+                                        <option value="en-clase">En clase</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Notifications Section -->
+                    <div class="bg-white p-8 rounded-2xl border border-[#e5e7eb] shadow-sm">
+                        <div class="flex items-center gap-2 mb-8">
+                            <div class="w-1 h-4 bg-[#0a1628]"></div>
+                            <h3 class="text-xs font-black text-[#0a1628] uppercase tracking-widest">Notificaciones</h3>
+                        </div>
+                        <div class="space-y-6">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <div class="text-sm font-bold text-[#0a1628]">Notificaciones por email</div>
+                                    <div class="text-[11px] text-gray-500">Recibe actualizaciones de tus sesiones y mensajes nuevos</div>
+                                </div>
+                                <div id="toggle-email" data-active="true" class="toggle-switch w-11 h-6 bg-[#0a1628] rounded-full relative cursor-pointer transition-colors duration-200">
+                                    <div class="toggle-knob absolute top-1 w-4 h-4 bg-white rounded-full shadow-sm transition-all duration-200 right-1"></div>
+                                </div>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <div class="text-sm font-bold text-[#0a1628]">Sonido de notificaciones</div>
+                                    <div class="text-[11px] text-gray-500">Reproduce un sonido al recibir un nuevo mensaje</div>
+                                </div>
+                                <div id="toggle-sonido" data-active="false" class="toggle-switch w-11 h-6 bg-gray-200 rounded-full relative cursor-pointer transition-colors duration-200">
+                                    <div class="toggle-knob absolute top-1 w-4 h-4 bg-white rounded-full shadow-sm transition-all duration-200 left-1"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Save Button -->
+                    <div class="pt-2">
+                        <button onclick="UI.showToast('Configuración guardada', true)" class="w-full md:w-auto px-10 py-3.5 bg-[#0a1628] text-white rounded-xl text-sm font-bold hover:bg-[#1a2a40] transition-colors shadow-lg shadow-[#0a1628]/10">Guardar Cambios</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Student Soporte -->
+            <div id="page-student-support" class="sub-page hidden p-8 md:p-10">
+                <div class="mb-10">
+                    <h1 class="text-2xl font-extrabold text-[#0a1628] mb-1">Centro de Soporte Institucional</h1>
+                    <p class="text-sm text-gray-600">¿Tienes problemas con el sistema o necesitas orientación adicional?</p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+                    <!-- Soporte Técnico -->
+                    <div class="bg-white p-8 rounded-xl border border-[#e5e7eb] shadow-sm hover:border-[#0a1628] transition-all group">
+                        <div class="w-12 h-12 bg-gray-50 border border-[#e5e7eb] rounded-xl flex items-center justify-center mb-6 group-hover:bg-[#0a1628] transition-colors">
+                            <svg class="w-6 h-6 text-[#0a1628] group-hover:text-white fill-none stroke-current stroke-2" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                        </div>
+                        <h4 class="text-base font-extrabold text-[#0a1628] mb-2">Soporte Técnico</h4>
+                        <p class="text-sm text-gray-500 leading-relaxed mb-4">Problemas de acceso, errores de sistema o incidencias con la plataforma.</p>
+                        <div class="flex items-center gap-2 text-[11px] font-bold text-[#0a1628]">
+                            <svg class="w-4 h-4 stroke-current fill-none stroke-2" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                            soporte@uca.edu.sv
+                        </div>
+                    </div>
+                    <!-- Atención Psicológica -->
+                    <div class="bg-white p-8 rounded-xl border border-[#e5e7eb] shadow-sm hover:border-[#0a1628] transition-all group">
+                        <div class="w-12 h-12 bg-gray-50 border border-[#e5e7eb] rounded-xl flex items-center justify-center mb-6 group-hover:bg-[#0a1628] transition-colors">
+                            <svg class="w-6 h-6 text-[#0a1628] group-hover:text-white fill-none stroke-current stroke-2" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                        </div>
+                        <h4 class="text-base font-extrabold text-[#0a1628] mb-2">Atención Psicológica UCA</h4>
+                        <p class="text-sm text-gray-500 leading-relaxed mb-4">Orientación emocional confidencial para estudiantes y personal.</p>
+                        <div class="flex items-center gap-2 text-[11px] font-bold text-[#0a1628]">
+                            <svg class="w-4 h-4 stroke-current fill-none stroke-2" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                            +503 2210-6600 ext. 234
+                        </div>
+                    </div>
+                    <!-- Preguntas Frecuentes -->
+                    <div class="bg-white p-8 rounded-xl border border-[#e5e7eb] shadow-sm hover:border-[#0a1628] transition-all group">
+                        <div class="w-12 h-12 bg-gray-50 border border-[#e5e7eb] rounded-xl flex items-center justify-center mb-6 group-hover:bg-[#0a1628] transition-colors">
+                            <svg class="w-6 h-6 text-[#0a1628] group-hover:text-white fill-none stroke-current stroke-2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                        </div>
+                        <h4 class="text-base font-extrabold text-[#0a1628] mb-2">Preguntas Frecuentes</h4>
+                        <p class="text-sm text-gray-500 leading-relaxed mb-4">Encuentra respuestas rápidas a las inquietudes más comunes.</p>
+                        <div class="flex items-center gap-2 text-[11px] font-bold text-[#0a1628]">
+                            <svg class="w-4 h-4 stroke-current fill-none stroke-2" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15,3 21,3 21,9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                            faq.uca.edu.sv
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Student Chat Room (SPA child) -->
+            <div id="page-student-chat-room" class="sub-page hidden h-full flex flex-col relative group/chat">
+                <div class="flex-1 flex flex-col h-full relative">
+                    <!-- Chat Header -->
+                    <div class="flex items-center p-5 bg-white border-b border-[#e5e7eb] shadow-sm relative z-20">
+                        <div class="relative w-12 h-12 bg-[#0a1628] rounded-xl flex items-center justify-center mr-4">
+                            <svg class="w-7 h-7 fill-none stroke-white stroke-2" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                            <span class="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-500 border-2 border-white rounded-full shadow-sm"></span>
+                        </div>
+                        <div class="flex-1">
+                            <h4 id="chatRoomTitle" class="text-base font-extrabold text-[#0a1628]">Monitor Académico</h4>
+                            <div class="flex items-center gap-1.5">
+                                <div class="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
+                                <p class="text-[11px] text-green-600 font-bold uppercase tracking-wider">Disponible ahora</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Info Trigger Icon -->
+                        <div class="group/info relative mr-3">
+                            <button class="p-2.5 text-gray-400 hover:text-[#0a1628] transition-colors bg-gray-50 rounded-lg border border-[#e5e7eb]">
+                                <svg class="w-5 h-5 stroke-current fill-none stroke-2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                            </button>
+                            
+                            <!-- Compact Context Panel (Hover visible) -->
+                            <div class="absolute top-14 right-0 w-64 bg-white/95 backdrop-blur-sm border border-gray-100 rounded-2xl shadow-xl p-5 opacity-0 pointer-events-none group-hover/info:opacity-100 transition-all duration-300 transform translate-y-2 group-hover/info:translate-y-0 z-50">
+                                <div class="flex items-center gap-2 mb-4">
+                                    <div class="w-1 h-4 bg-[#0a1628]"></div>
+                                    <h3 class="text-[10px] font-black text-[#0a1628] uppercase tracking-widest">Vista del Monitor</h3>
+                                </div>
+                                <div class="space-y-3">
+                                    <div>
+                                        <p class="text-[9px] font-bold text-gray-400 uppercase tracking-tighter">Carrera</p>
+                                        <p class="text-[11px] font-extrabold text-[#0a1628]">Ingeniería de Sistemas</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-[9px] font-bold text-gray-400 uppercase tracking-tighter">Semestre</p>
+                                        <p class="text-[11px] font-extrabold text-[#0a1628]">10° Semestre</p>
+                                    </div>
+                                    <div class="pt-2 border-t border-gray-50">
+                                        <p class="text-[9px] font-bold text-gray-400 uppercase tracking-tighter mb-1">Estado Detectado</p>
+                                        <span class="px-2 py-0.5 bg-orange-50 text-orange-600 text-[9px] font-black rounded uppercase">Ansioso</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button onclick="showSubPage('page-student-chats')" class="p-2.5 text-gray-400 hover:text-[#0a1628] transition-colors bg-gray-50 rounded-lg border border-[#e5e7eb]">
+                            <svg class="w-5 h-5 stroke-current fill-none stroke-2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                        </button>
+                    </div>
+                    
+                    <div id="chatMessages" class="flex-1 overflow-y-auto p-8 space-y-8 bg-[#f8f9fa]">
+                        <!-- Monitor Message -->
+                        <div class="flex flex-col items-start max-w-[80%]">
+                            <div class="flex items-center gap-2 mb-2 ml-1">
+                                <span class="text-[10px] font-bold text-[#0a1628] uppercase tracking-widest">Monitor Académico</span>
+                                <span class="text-[9px] text-gray-400">10:00 AM</span>
+                            </div>
+                            <div class="bg-[#0a1628] text-white p-4 rounded-2xl rounded-tl-none shadow-md text-sm leading-relaxed">
+                                Hola Carlos, bienvenido. He revisado tu solicitud sobre la carga académica de este semestre. ¿En qué punto específico sientes que necesitas más apoyo hoy?
+                            </div>
+                        </div>
+
+                        <!-- Student Message -->
+                        <div class="flex flex-col items-end ml-auto max-w-[80%]">
+                            <div class="flex items-center gap-2 mb-2 mr-1">
+                                <span class="text-[9px] text-gray-400">10:02 AM</span>
+                                <span class="text-[10px] font-bold text-gray-600 uppercase tracking-widest">Tú</span>
+                            </div>
+                            <div class="bg-[#eef1f4] text-[#0a1628] p-4 rounded-2xl rounded-tr-none shadow-sm text-sm leading-relaxed border border-[#e5e7eb]">
+                                Hola. Me está costando organizar el tiempo entre las entregas de Cálculo II y el proyecto de Sistemas. Siento que no llego a todo.
+                            </div>
+                        </div>
+
+                        <!-- Monitor Message -->
+                        <div class="flex flex-col items-start max-w-[80%]">
+                            <div class="flex items-center gap-2 mb-2 ml-1">
+                                <span class="text-[10px] font-bold text-[#0a1628] uppercase tracking-widest">Monitor Académico</span>
+                                <span class="text-[9px] text-gray-400">10:03 AM</span>
+                            </div>
+                            <div class="bg-[#0a1628] text-white p-4 rounded-2xl rounded-tl-none shadow-md text-sm leading-relaxed">
+                                Entiendo perfectamente. Es un desafío común en esta etapa. Vamos a priorizar. ¿Podemos empezar por revisar tu cronograma semanal actual?
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Chat Input Bar (Unified) -->
+                    <div class="p-6 bg-white border-t border-gray-100">
+                        <div class="flex items-center gap-4 w-full">
+                            <!-- Input Pill Wrapper -->
+                            <div class="flex-1 bg-gray-100 rounded-full flex items-center px-5 py-1">
+                                <input type="file" id="file-upload" class="hidden">
+                                <label for="file-upload" class="p-2 text-gray-400 hover:text-[#0a1628] cursor-pointer transition-colors mr-1">
+                                    <svg class="w-5 h-5 stroke-current fill-none stroke-2" viewBox="0 0 24 24"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+                                </label>
+
+                                <input id="chatInput" type="text" placeholder="Escribe un mensaje..." class="w-full bg-transparent border-none focus:outline-none text-sm py-3 text-[#0a1628] placeholder-gray-400 font-medium">
+                                
+                                <button class="p-2 text-gray-400 hover:text-[#0a1628] transition-colors ml-1">
+                                    <svg class="w-5 h-5 fill-none stroke-current stroke-2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+                                </button>
+                            </div>
+
+                            <!-- Send Button (Rectangular Unified) -->
+                            <button onclick="sendMessage()" class="bg-[#0a1628] text-white px-8 py-3.5 rounded-xl text-sm font-bold flex items-center gap-2 hover:bg-[#1a2a40] transition-all shadow-lg shadow-[#0a1628]/10 group">
+                                Enviar
+                                <svg class="w-4 h-4 fill-none stroke-white stroke-[2.5] transition-transform group-hover:translate-x-0.5" viewBox="0 0 24 24"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Student Monitors List -->
+             <div id="page-student-monitors" class="sub-page hidden p-8 md:p-10 max-w-7xl mx-auto">
+                <div class="flex justify-between items-end mb-12">
+                    <div>
+                        <div class="w-12 h-1 bg-[#0a1628] mb-6"></div>
+                        <h1 class="text-4xl font-black text-[#0a1628] leading-none tracking-tighter">MONITORES<br>ACADÉMICOS</h1>
+                    </div>
+                    <div class="flex items-center gap-4 text-gray-500 text-[13px] font-bold">
+                        <div class="flex">
+                            <div class="w-8 h-8 bg-[#0a1628] border-2 border-white rounded-lg flex items-center justify-center -ml-0 shadow-sm"><svg class="w-4 h-4 fill-white" viewBox="0 0 24 24"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c0 2 3 3 6 3s6-1 6-3v-5"/></svg></div>
+                            <div class="w-8 h-8 bg-[#0a1628] border-2 border-white rounded-lg flex items-center justify-center -ml-3 opacity-40 shadow-sm"><svg class="w-4 h-4 fill-white" viewBox="0 0 24 24"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c0 2 3 3 6 3s6-1 6-3v-5"/></svg></div>
+                        </div>
+                        <span class="uppercase tracking-widest text-[10px]"><strong>1</strong> Activo ahora</span>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <!-- Monitor Cards -->
+                    <div class="bg-white rounded-2xl p-8 border border-[#e5e7eb] shadow-sm hover:shadow-xl transition-all duration-300">
+                        <div class="flex justify-between items-start mb-6">
+                            <div class="relative w-14 h-14 bg-gray-50 border border-[#e5e7eb] rounded-xl flex items-center justify-center">
+                                <svg class="w-8 h-8 stroke-[#0a1628] fill-none stroke-[1.5]" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                                <span class="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-[3px] border-white rounded-full"></span>
+                            </div>
+                            <span class="px-3 py-1 bg-gray-50 text-[#0a1628] text-[10px] font-black uppercase tracking-widest rounded-md border border-[#e5e7eb]">Online</span>
+                        </div>
+                        <h3 class="text-xl font-extrabold text-[#0a1628] mb-1">Monitor Académico</h3>
+                        <p class="text-xs text-gray-500 font-bold uppercase tracking-wider mb-6">Facultad de Ingeniería</p>
+                        <div class="flex flex-wrap gap-2 mb-8">
+                            <span class="px-3 py-1 bg-gray-100 text-[#0a1628] text-[10px] font-bold rounded-md border border-[#e5e7eb]">Cálculo II</span>
+                            <span class="px-3 py-1 bg-gray-100 text-[#0a1628] text-[10px] font-bold rounded-md border border-[#e5e7eb]">Física I</span>
+                        </div>
+                        <button onclick="openChat('Monitor Académico - Ingeniería')" class="w-full py-4 bg-[#0a1628] text-white rounded-xl text-[11px] font-black tracking-[0.2em] flex items-center justify-center gap-2 hover:bg-[#1a2a40] transition-all shadow-lg shadow-[#0a1628]/10">
+                            <svg class="w-4 h-4 stroke-current fill-none stroke-2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                            INICIAR CHAT
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script src="js/ui/ui.js"></script>
+    <script src="js/ui/studentUI.js"></script>
+    <script src="js/services/api.js"></script>
+    <script src="js/services/studentService.js"></script>
+    <script>
+        function showSubPage(pageId) {
+            document.querySelectorAll('.sub-page').forEach(p => p.classList.add('hidden'));
+            const target = document.getElementById(pageId);
+            if(target) target.classList.remove('hidden');
+            UI.setActiveNavItem(pageId);
+        }
+
+        function openChat(name) {
+            const title = document.getElementById('chatRoomTitle');
+            if(title) title.textContent = name;
+            showSubPage('page-student-chat-room');
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('Student Interface Initialized');
+            
+            // Inicializar WebSockets y Servicios
+            const socket = typeof io !== 'undefined' ? io() : null;
+            if (window.StudentService && window.StudentUI) {
+                window.StudentService.init(socket, window.StudentUI);
+            }
+        });
+    </script>
+</body>
+</html>

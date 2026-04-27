@@ -1,0 +1,17 @@
+{
+    "messages": [],
+    "profiles": {
+        "student": {
+            "name": "Carlos Morales",
+            "avatar": "",
+            "status": "disponible",
+            "role": "student"
+        },
+        "monitor": {
+            "name": "Monitor Académico",
+            "avatar": "",
+            "status": "disponible",
+            "role": "monitor"
+        }
+    }
+}

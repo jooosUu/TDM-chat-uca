@@ -1,0 +1,54 @@
+/* Custom classes for specific styles not easily covered by Tailwind */
+.online-indicator {
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    width: 12px;
+    height: 12px;
+    background: #22c55e;
+    border: 2px solid #ffffff;
+    border-radius: 50%;
+}
+
+.unread-badge {
+    background: #0a1628;
+    color: white;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 10px;
+}
+
+/* Toast show/hide */
+.toast-notification.show {
+    opacity: 1;
+    transform: translate(-50%, 0);
+}
+
+.toast-notification.success {
+    background: #064e3b;
+    color: #ecfdf5;
+}
+
+.toast-notification {
+    background: #1f2937;
+    color: white;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #e5e7eb;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #d1d5db;
+}

@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BIENESTAR UCA</title>
+<link href="https://cdn.jsdelivr.net/npm/@fontsource/inter@5.0.18/index.css" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="toastNotification" class="toast-notification"></div>
+
+<!-- PAGE 1: PROFILE SELECTION -->
+<div id="page-profile" class="page active">
+<div class="profile-bg-element"></div>
+<div class="profile-header">
+<h4>UCA - Direccion de Bienestar Universitario</h4>
+<h1>Selecciona tu perfil de acceso</h1>
+<p>Bienvenido al Academic Sanctuary. Por favor, elige como deseas ingresar hoy.</p>
+</div>
+<div class="profile-cards">
+<div class="profile-card" onclick="goToPage('page-login','student')">
+<div class="profile-card-icon"><svg viewBox="0 0 24 24"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c0 2 3 3 6 3s6-1 6-3v-5"/></svg></div>
+<h3>Soy Estudiante</h3>
+<p>Ingresa para buscar soporte academico, orientacion personal o participar en actividades de bienestar.</p>
+<button>Entrar como Estudiante <span>→</span></button>
+</div>
+<div class="profile-card" onclick="goToPage('page-login','monitor')">
+<div class="profile-card-icon"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></div>
+<h3>Soy Monitor</h3>
+<p>Ingresa para atender consultas activas, gestionar solicitudes y dar seguimiento al bienestar estudiantil.</p>
+<button>Entrar como Monitor <span>→</span></button>
+</div>
+</div>
+<div class="profile-footer"><span>Universidad Catolica Americana &copy; 2024</span></div>
+</div>
+
+<!-- PAGE 2: LOGIN -->
+<div id="page-login" class="page">
+<div class="login-card">
+<div class="login-card-icon"><svg viewBox="0 0 24 24"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c0 2 3 3 6 3s6-1 6-3v-5"/></svg></div>
+<h2>UCA - Direccion de Bienestar Universitario</h2>
+<p class="login-sub">Academic Sanctuary Portal</p>
+<div class="login-field"><label>Correo Institucional</label><input type="email" placeholder="usuario@uca.edu"></div>
+<div class="login-field"><label>Contrasena <a href="#">¿Olvido su contrasena?</a></label><input type="password" placeholder="••••••••"></div>
+<div class="login-check"><input type="checkbox" id="keepSession"><label for="keepSession">Mantener sesion iniciada</label></div>
+<button class="login-btn" onclick="doLogin()">Ingresar</button>
+<div class="login-divider"></div>
+<p class="login-footer-text">Al ingresar, usted acepta los terminos de uso y politicas de privacidad de la Universidad Catolica Americana.</p>
+<div class="login-links"><a href="#">Soporte</a><a href="#">Portal UCA</a></div>
+</div>
+</div>
+
+<!-- PAGE 3: DESKTOP DIRECTORY (Estado Monitores) -->
+<div id="page-directory" class="page">
+<div class="app-layout">
+<div class="sidebar" id="sidebar-directory"></div>
+<div class="main-content">
+<div class="mobile-header"><h3>Directorio</h3><div class="mobile-header-icons"><button onclick="showToast('Notificaciones')"><svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></button><button style="width:28px;height:28px;background:#0a1628;border-radius:50%;display:flex;align-items:center;justify-content:center;"><svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:#fff;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></button></div></div>
+
+<!-- Desktop view -->
+<div class="desktop-directory-view">
+<div class="monitors-header-section">
+<div><h1>Monitores<br>Academicos</h1><div class="underline-bar"></div></div>
+<div class="monitors-online-count">
+<div class="online-icons-group">
+<div class="online-icon-box"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2" fill="white"/></svg></div>
+<div class="online-icon-box" style="opacity:.5"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2" fill="white"/></svg></div>
+<div class="online-icon-box" style="opacity:.3"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2" fill="white"/></svg></div>
+</div>
+<span class="online-count-text"><strong>1</strong> Activo ahora</span>
+</div>
+</div>
+<div class="monitors-grid-page">
+<div class="monitor-card-page">
+<div class="monitor-card-top-section">
+<div class="monitor-card-avatar-box"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg><span class="status-indicator online"></span></div>
+<span class="monitor-card-status-badge online-badge">Online</span>
+</div>
+<h3>Monitor Academico</h3>
+<p class="faculty-name">Facultad de Ingenieria</p>
+<div class="monitor-card-tags-section"><span class="monitor-card-tag-item active-tag-item">Calculo II</span><span class="monitor-card-tag-item active-tag-item">Fisica I</span></div>
+<button class="monitor-card-btn-section primary-btn" onclick="goToPage('page-chat')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>INICIAR CHAT</button>
+</div>
+<div class="monitor-card-page">
+<div class="monitor-card-top-section">
+<div class="monitor-card-avatar-box"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg><span class="status-indicator offline"></span></div>
+<span class="monitor-card-status-badge offline-badge">Offline</span>
+</div>
+<h3>Monitor Academico</h3>
+<p class="faculty-name">Ciencias de la Salud</p>
+<div class="monitor-card-tags-section"><span class="monitor-card-tag-item">Anatomia</span><span class="monitor-card-tag-item">Bioquimica</span></div>
+<button class="monitor-card-btn-section secondary-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>INICIAR CHAT</button>
+</div>
+<div class="monitor-card-page">
+<div class="monitor-card-top-section">
+<div class="monitor-card-avatar-box"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg><span class="status-indicator offline"></span></div>
+<span class="monitor-card-status-badge offline-badge">Offline</span>
+</div>
+<h3>Monitor Academico</h3>
+<p class="faculty-name">Derecho &amp; Politica</p>
+<div class="monitor-card-tags-section"><span class="monitor-card-tag-item">Logica</span><span class="monitor-card-tag-item">Derecho Romano</span></div>
+<button class="monitor-card-btn-section secondary-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>INICIAR CHAT</button>
+</div>
+</div>
+</div>
+
+<!-- Mobile view -->
+<div class="mobile-directory-view">
+<div class="mobile-directory-content">
+<h2 class="mobile-directory-title">Monitores Disponibles</h2>
+<p class="mobile-directory-sub">Encuentra apoyo academico personalizado de estudiantes destacados.</p>
+<div class="mobile-monitor-item">
+<div class="mobile-monitor-avatar"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg><span class="m-status online"></span></div>
+<div class="mobile-monitor-info"><h4>Monitor Academico</h4><span class="m-status-text online">ONLINE</span><span class="m-specialty">Especialidad: Calculo Multivariado</span></div>
+<button class="mobile-monitor-btn primary" onclick="goToPage('page-chat')">Iniciar Chat</button>
+</div>
+<div class="mobile-monitor-item">
+<div class="mobile-monitor-avatar"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg><span class="m-status offline"></span></div>
+<div class="mobile-monitor-info"><h4>Sofia Martinez</h4><span class="m-status-text offline">OFFLINE</span><span class="m-specialty">Especialidad: Literatura Inglesa</span></div>
+<button class="mobile-monitor-btn disabled">No Disponible</button>
+</div>
+<div class="mobile-monitor-item">
+<div class="mobile-monitor-avatar"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg><span class="m-status offline"></span></div>
+<div class="mobile-monitor-info"><h4>Javier Lopez</h4><span class="m-status-text offline">OFFLINE</span><span class="m-specialty">Especialidad: Fisica Cuantica</span></div>
+<button class="mobile-monitor-btn disabled">No Disponible</button>
+</div>
+</div>
+</div>
+<div class="mobile-bottom-nav">
+<button class="mobile-nav-btn" onclick="showToast('Chat')"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Chat</button>
+<button class="mobile-nav-btn active"><svg viewBox="0 0 24 24"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg>Directorio</button>
+<button class="mobile-nav-btn"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Perfil</button>
+<button class="mobile-nav-btn"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Ajustes</button>
+</div>
+</div>
+</div>
+</div>
+
+<!-- PAGE 4: CHAT -->
+<div id="page-chat" class="page">
+<div class="app-layout">
+<div class="sidebar" id="sidebar-chat"></div>
+<div class="main-content">
+<div class="chat-layout">
+<div class="chat-header-bar">
+<button class="chat-back-btn" onclick="goToPage('page-directory')"><svg viewBox="0 0 24 24"><polyline points="15,18 9,12 15,6"/></svg></button>
+<div class="chat-header-avatar-box"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2" fill="none" stroke="white" stroke-width="1.5"/><line x1="8" y1="21" x2="16" y2="21" stroke="white" stroke-width="1.5"/><line x1="12" y1="17" x2="12" y2="21" stroke="white" stroke-width="1.5"/></svg><span class="online-dot"></span></div>
+<div class="chat-header-details"><h4>Monitor Academico</h4><p>EN LINEA</p></div>
+<div class="chat-header-actions"><button><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></button></div>
+</div>
+<div class="chat-messages-scroll" id="chatMessages">
+<div class="chat-date-divider">HOY</div>
+<div class="chat-msg incoming-msg"><div><div class="chat-msg-bubble">Hola, soy tu Monitor Academico. ¿En que puedo apoyarte con tus tramites de Bienestar Universitario hoy?</div><div class="chat-msg-time">09:12 AM</div></div></div>
+<div class="chat-msg outgoing-msg"><div><div class="chat-msg-bubble">Hola, necesito informacion sobre el proceso de reingreso para el proximo semestre.</div><div class="chat-msg-time">09:14 AM</div></div></div>
+<div class="chat-msg incoming-msg"><div><div class="chat-msg-bubble">Con gusto. Para el proceso de reingreso, primero debemos validar tu estatus academico actual. ¿Tienes tu numero de carnet a la mano?</div><div class="chat-msg-time">09:15 AM</div></div></div>
+<div class="chat-quick-replies">
+<button class="chat-quick-reply-btn" onclick="sendQuickReply('Si, lo tengo')">Si, lo tengo</button>
+<button class="chat-quick-reply-btn" onclick="sendQuickReply('No lo recuerdo')">No lo recuerdo</button>
+<button class="chat-quick-reply-btn" onclick="sendQuickReply('Ver requisitos')">Ver requisitos</button>
+</div>
+<div class="chat-msg outgoing-msg"><div><div class="chat-msg-bubble">Si, es el 2023-0045U. ¿Cuales son los pasos a seguir?</div><div class="chat-msg-time">09:16 AM</div></div></div>
+</div>
+<div class="chat-input-section">
+<button class="add-btn"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+<input type="text" class="msg-input" id="msgInput" placeholder="Escribe tu mensaje..." onkeypress="if(event.key==='Enter')sendMsg()">
+<button class="send-btn" onclick="sendMsg()"><svg viewBox="0 0 24 24"><path d="M5 12l14 0M13 5l7 7-7 7"/></svg></button>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
