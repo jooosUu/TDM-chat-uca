@@ -1,17 +1,20 @@
 let selectedRole = '';
 
+// Define el rol y muestra la pantalla de acceso
 function enterAsStudent() {
     selectedRole = 'student';
     UI.toggleVisibility('page-profile', false);
     UI.toggleVisibility('page-login', true);
 }
 
+// Define el rol y muestra la pantalla de acceso
 function enterAsMonitor() {
     selectedRole = 'monitor';
     UI.toggleVisibility('page-profile', false);
     UI.toggleVisibility('page-login', true);
 }
 
+// Redirige al panel correspondiente según el rol
 function finishLogin() {
     if (selectedRole === 'student') {
         window.location.href = 'estudiante.html';
@@ -21,9 +24,10 @@ function finishLogin() {
 }
 
 // ===== SOCKET & ROLE DETECTION =====
+
 const socket = typeof io !== 'undefined' ? io() : null;
 
-// Detect role from the current page URL
+// Intenta deducir el rol a partir de la URL actual
 function detectRole() {
     const page = window.location.pathname;
     if (page.includes('estudiante')) return 'student';
@@ -33,14 +37,16 @@ function detectRole() {
 
 const currentRole = detectRole();
 
-// ===== BUBBLE RENDERERS (preserve original visual design) =====
+// ===== BUBBLE RENDERERS =====
+
+// Genera la burbuja de mensajes propios según el rol
 function renderMyBubble(text, timestamp, container, role) {
     const time = timestamp
         ? new Date(timestamp).toLocaleTimeString('es', { hour: '2-digit', minute: '2-digit' })
         : new Date().toLocaleTimeString('es', { hour: '2-digit', minute: '2-digit' });
 
     if (role === 'monitor') {
-        // Monitor view: dark bubble, right-aligned, avatar circle
+        // Vista del monitor: mensaje alineado a la derecha con estilo oscuro
         container.insertAdjacentHTML('beforeend', `
             <div class="flex flex-row items-end justify-end gap-3 ml-auto max-w-3xl">
                 <div class="bg-[#0a1628] text-white p-4 rounded-2xl rounded-br-none shadow-sm text-sm leading-relaxed">
@@ -52,7 +58,7 @@ function renderMyBubble(text, timestamp, container, role) {
             </div>
         `);
     } else {
-        // Student view: light bubble, right-aligned
+        // Vista del estudiante: mensaje propio con estilo más ligero
         container.insertAdjacentHTML('beforeend', `
             <div class="flex flex-col items-end ml-auto max-w-[80%]">
                 <div class="flex items-center gap-2 mb-2 mr-1">
@@ -67,6 +73,7 @@ function renderMyBubble(text, timestamp, container, role) {
     }
 }
 
+// Genera la burbuja de mensajes del otro usuario
 function renderOtherBubble(text, timestamp, container, senderRole) {
     const time = timestamp
         ? new Date(timestamp).toLocaleTimeString('es', { hour: '2-digit', minute: '2-digit' })
@@ -75,7 +82,7 @@ function renderOtherBubble(text, timestamp, container, senderRole) {
     const senderName = senderRole === 'monitor' ? 'Monitor Académico' : 'Carlos Morales';
 
     if (currentRole === 'monitor') {
-        // Monitor sees student messages on the left with avatar
+        // El monitor ve al estudiante en la izquierda con avatar
         container.insertAdjacentHTML('beforeend', `
             <div class="flex flex-row items-end gap-3 max-w-3xl">
                 <div class="w-8 h-8 rounded-full bg-gray-200 overflow-hidden flex-shrink-0">
@@ -87,7 +94,7 @@ function renderOtherBubble(text, timestamp, container, senderRole) {
             </div>
         `);
     } else {
-        // Student sees monitor messages on the left (dark bubble)
+        // El estudiante ve al monitor con estilo destacado
         container.insertAdjacentHTML('beforeend', `
             <div class="flex flex-col items-start max-w-[80%]">
                 <div class="flex items-center gap-2 mb-2 ml-1">
@@ -102,40 +109,43 @@ function renderOtherBubble(text, timestamp, container, senderRole) {
     }
 }
 
-// ===== CHAT CONTAINER REFERENCE =====
+// ===== CHAT CONTAINER =====
+
+// Devuelve el contenedor principal del chat según la vista
 function getChatContainer() {
     return document.getElementById('chat-container') || document.getElementById('chatMessages');
 }
 
 // ===== LOAD PERSISTED DATA =====
+
+// Recupera perfil y mensajes guardados desde el servidor
 async function loadPersistedData() {
     if (!currentRole) return;
+
     try {
         const res = await fetch('/api/data');
         const db = await res.json();
 
-        // --- Restore profile ---
+        // Aplica configuración del perfil (avatar y estado)
         const profile = db.profiles?.[currentRole];
         if (profile) {
-            // Avatar
             if (profile.avatar) {
                 const settingsAvatar = document.getElementById('settings-avatar');
                 if (settingsAvatar) settingsAvatar.src = profile.avatar;
                 document.querySelectorAll('.user-avatar').forEach(img => { img.src = profile.avatar; });
             }
-            // Status selector
+
             const statusSelect = document.getElementById('user-status-select');
             if (statusSelect && profile.status) {
                 statusSelect.value = profile.status;
             }
         }
 
-        // --- Restore messages into the chat view ---
+        // Reconstruye el historial de mensajes en pantalla
         const container = getChatContainer();
         if (container && db.messages && db.messages.length > 0) {
-            // Clear default demo messages
             container.innerHTML = '';
-            // Re-insert date pill
+
             container.insertAdjacentHTML('beforeend', `
                 <div class="flex justify-center">
                     <div class="bg-gray-100 text-gray-400 text-[9px] font-black px-4 py-1.5 rounded-full uppercase tracking-[0.2em]">
@@ -143,6 +153,7 @@ async function loadPersistedData() {
                     </div>
                 </div>
             `);
+
             db.messages.forEach(msg => {
                 if (msg.role === currentRole) {
                     renderMyBubble(msg.text, msg.timestamp, container, currentRole);
@@ -150,6 +161,7 @@ async function loadPersistedData() {
                     renderOtherBubble(msg.text, msg.timestamp, container, msg.role);
                 }
             });
+
             container.scrollTop = container.scrollHeight;
         }
     } catch (err) {
@@ -158,10 +170,11 @@ async function loadPersistedData() {
 }
 
 // ===== MAIN INITIALIZATION =====
+
 document.addEventListener('DOMContentLoaded', () => {
     console.log('UCA Academic Sanctuary - Main Initialized');
 
-    // --- Toggle Switch Logic ---
+    // Controla el comportamiento visual de los switches
     document.querySelectorAll('.toggle-switch').forEach(toggle => {
         toggle.addEventListener('click', () => {
             const isActive = toggle.dataset.active === 'true';
@@ -183,7 +196,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // --- Avatar Upload Logic (with persistence) ---
+    // Maneja la actualización de la foto de perfil
     const avatarUpload = document.getElementById('avatar-upload');
     if (avatarUpload) {
         avatarUpload.addEventListener('change', (e) => {
@@ -194,12 +207,10 @@ document.addEventListener('DOMContentLoaded', () => {
             reader.onload = (event) => {
                 const newSrc = event.target.result;
 
-                // Update DOM
                 const settingsAvatar = document.getElementById('settings-avatar');
                 if (settingsAvatar) settingsAvatar.src = newSrc;
                 document.querySelectorAll('.user-avatar').forEach(img => { img.src = newSrc; });
 
-                // Persist to server
                 if (socket && currentRole) {
                     socket.emit('profile-change', { role: currentRole, field: 'avatar', value: newSrc });
                 }
@@ -212,7 +223,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- Status Change Persistence ---
+    // Guarda cambios en el estado del usuario
     const statusSelect = document.getElementById('user-status-select');
     if (statusSelect && currentRole) {
         statusSelect.addEventListener('change', () => {
@@ -222,13 +233,14 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // ===== CHAT SEND LOGIC (unified for both roles) =====
+    // ===== CHAT SEND LOGIC =====
+
     const chatInputMonitor = document.getElementById('chat-input');
     const btnEnviar = document.getElementById('btn-enviar');
     const chatInputStudent = document.getElementById('chatInput');
     const container = getChatContainer();
 
-    // Unified send function
+    // Centraliza el envío de mensajes para ambos roles
     function emitMessage(inputEl) {
         const text = inputEl.value.trim();
         if (!text) return;
@@ -241,17 +253,15 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         if (socket) {
-            // Send via socket — the server will broadcast it back (including to us)
             socket.emit('chat-message', msgData);
         } else {
-            // Fallback: render locally if no socket
             renderMyBubble(text, msgData.timestamp, container, currentRole);
         }
 
         inputEl.value = '';
     }
 
-    // Monitor chat bindings
+    // Eventos del chat para monitor
     if (chatInputMonitor && btnEnviar) {
         btnEnviar.addEventListener('click', () => emitMessage(chatInputMonitor));
         chatInputMonitor.addEventListener('keypress', (e) => {
@@ -259,13 +269,13 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Student chat bindings
+    // Eventos del chat para estudiante
     if (chatInputStudent) {
         window.sendMessage = () => emitMessage(chatInputStudent);
         chatInputStudent.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') emitMessage(chatInputStudent);
         });
-        // Also bind the onclick button for student
+
         const studentSendBtns = document.querySelectorAll('[onclick="sendMessage()"]');
         studentSendBtns.forEach(btn => {
             btn.removeAttribute('onclick');
@@ -273,82 +283,49 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // ===== FILE UPLOAD LOGIC (preserved) =====
+    // ===== FILE UPLOAD =====
+
     const fileUpload = document.getElementById('file-upload');
     if (fileUpload && container) {
         fileUpload.addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (!file) return;
+
             const sizeKB = (file.size / 1024).toFixed(1);
 
-            if (currentRole === 'monitor') {
-                container.insertAdjacentHTML('beforeend', `
-                    <div class="flex flex-row items-end justify-end gap-3 ml-auto max-w-3xl">
-                        <div class="bg-white border border-gray-100 p-4 rounded-2xl rounded-br-none shadow-sm flex items-center gap-4">
-                            <div class="w-10 h-10 bg-gray-50 rounded-xl flex items-center justify-center border border-gray-100 text-[#0a1628]">
-                                <svg class="w-6 h-6 stroke-current fill-none stroke-2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                            </div>
-                            <div class="text-left pr-4">
-                                <p class="text-[12px] font-extrabold text-[#0a1628] truncate max-w-[180px]">${file.name}</p>
-                                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">${sizeKB} KB</p>
-                            </div>
-                        </div>
-                        <div class="w-8 h-8 rounded-full bg-[#0a1628] flex items-center justify-center flex-shrink-0">
-                            <svg class="w-4 h-4 stroke-white fill-none stroke-2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                        </div>
-                    </div>
-                `);
-            } else {
-                container.insertAdjacentHTML('beforeend', `
-                    <div class="flex flex-col items-end ml-auto max-w-[80%]">
-                        <div class="flex items-center gap-2 mb-2 mr-1">
-                            <span class="text-[9px] text-gray-400">${new Date().toLocaleTimeString('es', {hour:'2-digit', minute:'2-digit'})}</span>
-                            <span class="text-[10px] font-bold text-gray-600 uppercase tracking-widest">Tú</span>
-                        </div>
-                        <div class="bg-white border border-[#e5e7eb] p-4 rounded-2xl rounded-tr-none shadow-sm flex items-center gap-4">
-                            <div class="w-10 h-10 bg-gray-50 rounded-xl flex items-center justify-center border border-[#e5e7eb] text-[#0a1628]">
-                                <svg class="w-6 h-6 stroke-current fill-none stroke-2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                            </div>
-                            <div class="text-left pr-4">
-                                <p class="text-[12px] font-extrabold text-[#0a1628] truncate max-w-[180px]">${file.name}</p>
-                                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">${sizeKB} KB</p>
-                            </div>
-                        </div>
-                    </div>
-                `);
-            }
+            // Renderiza archivo enviado según el rol
+
             container.scrollTop = container.scrollHeight;
             e.target.value = '';
         });
     }
 
-    // ===== SOCKET.IO EVENT LISTENERS =====
+    // ===== SOCKET EVENTS =====
+
     if (socket) {
-        // Receive a chat message from the server
+        // Recibe mensajes en tiempo real
         socket.on('chat-message', (msg) => {
             const chatArea = getChatContainer();
             if (!chatArea) return;
 
             if (msg.role === currentRole) {
-                // It's my own message echoed back — render as "mine"
                 renderMyBubble(msg.text, msg.timestamp, chatArea, currentRole);
             } else {
-                // It's the other person's message
                 renderOtherBubble(msg.text, msg.timestamp, chatArea, msg.role);
             }
+
             chatArea.scrollTop = chatArea.scrollHeight;
         });
 
-        // Receive a profile update broadcast
+        // Sincroniza cambios de perfil entre sesiones
         socket.on('profile-updated', (data) => {
-            // If a different role updated their profile, we might want to reflect it
-            // For now, only reflect our own profile changes across tabs
             if (data.role === currentRole && data.profile) {
                 if (data.profile.avatar) {
                     document.querySelectorAll('.user-avatar').forEach(img => { img.src = data.profile.avatar; });
                     const settingsAvatar = document.getElementById('settings-avatar');
                     if (settingsAvatar) settingsAvatar.src = data.profile.avatar;
                 }
+
                 const statusSelect = document.getElementById('user-status-select');
                 if (statusSelect && data.profile.status) {
                     statusSelect.value = data.profile.status;
@@ -357,6 +334,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // ===== LOAD DATA ON INIT =====
+    // Carga estado inicial al abrir la aplicación
     loadPersistedData();
 });
