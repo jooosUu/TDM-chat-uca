@@ -1,4 +1,4 @@
-/* Custom classes for specific styles not easily covered by Tailwind */
+/* Estilos adicionales para Tailwind */
 .online-indicator {
     position: absolute;
     bottom: 2px;
@@ -19,7 +19,7 @@
     border-radius: 10px;
 }
 
-/* Toast show/hide */
+/* Estado Toast */
 .toast-notification.show {
     opacity: 1;
     transform: translate(-50%, 0);
