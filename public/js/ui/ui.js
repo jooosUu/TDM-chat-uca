@@ -3,10 +3,21 @@ const UI = {
         const toastEl = document.getElementById('toastNotification');
         if (!toastEl) return;
         toastEl.textContent = message;
-        toastEl.className = `fixed top-5 left-1/2 -translate-x-1/2 px-6 py-3 rounded-lg shadow-lg z-50 transition-all duration-300 toast-notification show ${isSuccess ? 'success' : ''}`;
+        
+        toastEl.classList.remove('opacity-0', 'pointer-events-none', 'translate-y-[-20px]');
+        toastEl.classList.add('opacity-100', 'translate-y-0');
+        
+        if (isSuccess) {
+            toastEl.classList.add('bg-[#064e3b]', 'text-[#ecfdf5]');
+            toastEl.classList.remove('bg-[#1f2937]', 'text-white');
+        } else {
+            toastEl.classList.add('bg-[#1f2937]', 'text-white');
+            toastEl.classList.remove('bg-[#064e3b]', 'text-[#ecfdf5]');
+        }
         
         setTimeout(() => {
-            toastEl.classList.remove('show');
+            toastEl.classList.remove('opacity-100', 'translate-y-0');
+            toastEl.classList.add('opacity-0', 'pointer-events-none', 'translate-y-[-20px]');
         }, 3000);
     },
 

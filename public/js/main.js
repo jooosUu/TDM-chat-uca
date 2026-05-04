@@ -285,65 +285,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // ===== CHAT SEND LOGIC (unified for both roles) =====
-    const chatInputMonitor = document.getElementById('chat-input');
-    const btnEnviar = document.getElementById('btn-enviar');
-    const chatInputStudent = document.getElementById('chatInput');
     const container = getChatContainer();
-
-    // Unified send function
-    function emitMessage(inputEl) {
-        const text = inputEl.value.trim();
-        if (!text) return;
-
-        let senderName = currentRole === 'monitor' ? 'Monitor Académico' : 'Carlos Morales';
-        const googleUserData = localStorage.getItem('googleUser');
-        if (googleUserData) {
-            try {
-                const user = JSON.parse(googleUserData);
-                senderName = user.name;
-            } catch(e) {}
-        }
-
-        const msgData = {
-            sender: senderName,
-            role: currentRole,
-            text: text,
-            timestamp: new Date().toISOString()
-        };
-
-        if (socket) {
-            // Send via socket — the server will broadcast it back (including to us)
-            socket.emit('chat-message', msgData);
-        } else {
-            // Fallback: render locally if no socket
-            renderMyBubble(text, msgData.timestamp, container, currentRole);
-        }
-
-        inputEl.value = '';
-    }
-
-    // Monitor chat bindings
-    if (chatInputMonitor && btnEnviar) {
-        btnEnviar.addEventListener('click', () => emitMessage(chatInputMonitor));
-        chatInputMonitor.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') emitMessage(chatInputMonitor);
-        });
-    }
-
-    // Student chat bindings
-    if (chatInputStudent) {
-        window.sendMessage = () => emitMessage(chatInputStudent);
-        chatInputStudent.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') emitMessage(chatInputStudent);
-        });
-        // Also bind the onclick button for student
-        const studentSendBtns = document.querySelectorAll('[onclick="sendMessage()"]');
-        studentSendBtns.forEach(btn => {
-            btn.removeAttribute('onclick');
-            btn.addEventListener('click', () => emitMessage(chatInputStudent));
-        });
-    }
 
     // ===== FILE UPLOAD LOGIC (preserved) =====
     const fileUpload = document.getElementById('file-upload');
@@ -396,20 +338,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ===== SOCKET.IO EVENT LISTENERS =====
     if (socket) {
-        // Receive a chat message from the server
-        socket.on('chat-message', (msg) => {
-            const chatArea = getChatContainer();
-            if (!chatArea) return;
-
-            if (msg.role === currentRole) {
-                // It's my own message echoed back — render as "mine"
-                renderMyBubble(msg.text, msg.timestamp, chatArea, currentRole);
-            } else {
-                // It's the other person's message
-                renderOtherBubble(msg.text, msg.timestamp, chatArea, msg.role, msg.sender);
-            }
-            chatArea.scrollTop = chatArea.scrollHeight;
-        });
 
         // Receive a profile update broadcast
         socket.on('profile-updated', (data) => {
