@@ -57,55 +57,81 @@
     </div>
 
     <!-- ===== PAGE 2: LOGIN ===== -->
-    <div id="page-login" class="hidden fixed inset-0 flex flex-col items-center justify-center bg-[#f3f4f6] z-50 overflow-y-auto p-4 md:p-0">
-        <div class="bg-white w-full max-w-[400px] p-8 md:p-10 rounded-lg shadow-xl text-center my-auto">
-            <div class="w-12 h-12 bg-[#0a1628] rounded-[4px] flex items-center justify-center mx-auto mb-6">
-                <svg class="w-6 h-6 fill-white" viewBox="0 0 24 24"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c0 2 3 3 6 3s6-1 6-3v-5"/></svg>
-            </div>
-            <h2 class="text-xl text-[#0a1628] mb-2 font-extrabold">UCA - Dirección de Bienestar Universitario</h2>
-            <p class="text-[13px] text-[#6b7280] mb-8">Academic Sanctuary Portal</p>
+    <div id="page-login" class="hidden fixed inset-0 flex flex-col bg-[#f8f9fa] z-50 overflow-y-auto p-8">
+        <div class="w-full max-w-[360px] mx-auto my-auto flex flex-col pt-8">
             
-            <!-- Contenedor donde Google renderizará su botón oficial -->
-            <div id="buttonDiv" class="flex justify-center w-full mb-2"></div>
-            <!-- Script oficial de Google Identity Services -->
+            <!-- Logo Area -->
+            <div class="text-center mb-10">
+                <div class="w-[60px] h-[60px] bg-[#f3f4f6] rounded-2xl flex items-center justify-center mx-auto mb-4 border border-gray-100 shadow-sm">
+                    <svg class="w-8 h-8 fill-[#0a1628]" viewBox="0 0 24 24"><path d="M4 10v7h3v-7H4zm6 0v7h3v-7h-3zM2 22h19v-3H2v3zm14-12v7h3v-7h-3zm-8.5-9L2 6v2h19V6l-9.5-5z"/></svg>
+                </div>
+                <h2 class="text-2xl font-black text-[#0a1628] tracking-tight">UCA</h2>
+                <p class="text-[11px] font-medium text-[#4b5563] mt-1">Dirección de Bienestar Universitario</p>
+            </div>
+
+            <!-- Greeting -->
+            <div class="mb-8">
+                <h1 class="text-3xl font-extrabold text-[#0a1628] mb-3 tracking-tight">Bienvenido</h1>
+                <p class="text-[12px] text-[#6b7280] leading-relaxed pr-4">Ingresa tus credenciales institucionales para acceder al santuario académico.</p>
+            </div>
+
+            <!-- Form -->
+            <div class="space-y-5 mb-8">
+                <!-- Email -->
+                <div class="text-left">
+                    <label class="block text-[10px] font-extrabold text-[#475569] mb-2 tracking-widest uppercase">Correo</label>
+                    <input type="email" placeholder="usuario@uca.edu.ar" class="w-full py-3.5 px-4 bg-[#eef1f4] border-none rounded-xl text-sm text-[#0a1628] placeholder-[#9ca3af] focus:outline-none focus:ring-2 focus:ring-[#0a1628]/20 transition-all font-medium">
+                </div>
+                
+                <!-- Password -->
+                <div class="text-left">
+                    <div class="flex justify-between items-center mb-2">
+                        <label class="text-[10px] font-extrabold text-[#475569] tracking-widest uppercase">Contraseña</label>
+                        <a href="#" onclick="UI.toggleVisibility('page-login', false); UI.toggleVisibility('page-forgot-password', true)" class="text-[9px] font-extrabold text-[#475569] tracking-widest uppercase hover:text-[#0a1628] transition-colors">¿Olvidaste tu clave?</a>
+                    </div>
+                    <div class="relative flex items-center">
+                        <input type="password" placeholder="••••••••" class="w-full py-3.5 px-4 pr-12 bg-[#eef1f4] border-none rounded-xl text-lg text-[#0a1628] placeholder-[#9ca3af] focus:outline-none focus:ring-2 focus:ring-[#0a1628]/20 transition-all tracking-widest">
+                        <button class="absolute right-4 text-gray-400 hover:text-[#0a1628] transition-colors">
+                            <svg class="w-5 h-5 fill-none stroke-current stroke-[1.5]" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Login Button -->
+            <button onclick="finishLogin()" class="w-full py-4 bg-[#0a1628] text-white rounded-xl text-sm font-extrabold shadow-lg shadow-[#0a1628]/20 hover:bg-[#1a2a40] transition-all mb-8">Ingresar</button>
+
+            <!-- Divider -->
+            <div class="flex items-center gap-4 mb-6">
+                <div class="h-px bg-[#e5e7eb] flex-1"></div>
+                <span class="text-[10px] font-extrabold text-[#9ca3af] tracking-widest uppercase">O accede con</span>
+                <div class="h-px bg-[#e5e7eb] flex-1"></div>
+            </div>
+
+            <!-- SSO Options -->
+            <div class="flex gap-4 w-full mb-12">
+                <div class="flex-1 relative">
+                    <button class="w-full flex items-center justify-center gap-2 bg-white border border-[#e5e7eb] py-3.5 rounded-xl shadow-sm hover:bg-gray-50 transition-colors">
+                        <svg class="w-4 h-4" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+                        <span class="text-[11px] font-black text-[#0a1628] uppercase tracking-wider mt-0.5">Google</span>
+                    </button>
+                    <!-- Official Google Button overlaid invisibly -->
+                    <div id="buttonDiv" class="absolute inset-0 opacity-0 overflow-hidden z-10 w-full h-full flex items-center justify-center child:w-full child:h-full cursor-pointer"></div>
+                </div>
+                <div class="flex-1">
+                    <button class="w-full flex items-center justify-center gap-2 bg-white border border-[#e5e7eb] py-3.5 rounded-xl shadow-sm hover:bg-gray-50 transition-colors">
+                        <svg class="w-4 h-4 fill-none stroke-[#0a1628] stroke-2" viewBox="0 0 24 24"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+                        <span class="text-[11px] font-black text-[#0a1628] uppercase tracking-wider mt-0.5">SSO</span>
+                    </button>
+                </div>
+            </div>
+            
             <script src="https://accounts.google.com/gsi/client" async defer></script>
             
-            <div class="flex items-center text-center my-6 text-[#9ca3af] text-xs before:flex-1 before:border-b before:border-[#e5e7eb] before:mr-3 after:flex-1 after:border-b after:border-[#e5e7eb] after:ml-3">o ingresa con tu cuenta</div>
-            
-            <div class="text-left mb-5">
-                <label class="block text-[11px] font-bold text-[#4b5563] mb-2 tracking-[0.5px]">CORREO INSTITUCIONAL</label>
-                <div class="relative flex items-center">
-                    <svg class="absolute left-3 w-4 h-4 stroke-[#9ca3af] fill-none stroke-2" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-                    <input type="email" placeholder="usuario@uca.edu" class="w-full py-3 pl-10 pr-3 bg-[#f3f4f6] border border-transparent rounded-[4px] text-sm text-[#1a1a2e] transition-all duration-200 focus:bg-white focus:border-[#0a1628] outline-none">
-                </div>
-            </div>
-            
-            <div class="text-left mb-5">
-                <div class="flex justify-between items-center mb-2">
-                    <label class="text-[11px] font-bold text-[#4b5563] tracking-[0.5px]">CONTRASEÑA</label>
-                    <a href="#" onclick="UI.toggleVisibility('page-login', false); UI.toggleVisibility('page-forgot-password', true)" class="text-[#0a1628] font-bold text-[11px] no-underline hover:underline">¿Olvidó su contraseña?</a>
-                </div>
-                <div class="relative flex items-center">
-                    <svg class="absolute left-3 w-4 h-4 stroke-[#9ca3af] fill-none stroke-2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                    <input type="password" placeholder="••••••••" class="w-full py-3 pl-10 pr-10 bg-[#f3f4f6] border border-transparent rounded-[4px] text-sm text-[#1a1a2e] transition-all duration-200 focus:bg-white focus:border-[#0a1628] outline-none">
-                    <svg class="absolute right-3 w-4 h-4 stroke-[#9ca3af] fill-none stroke-2 cursor-pointer" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-                </div>
-            </div>
-            
-            <div class="flex justify-between items-center mb-8 text-xs">
-                <div class="flex items-center gap-2 text-[#6b7280]">
-                    <input type="checkbox" id="remember" class="cursor-pointer">
-                    <label for="remember" class="font-medium cursor-pointer">Mantener sesión iniciada</label>
-                </div>
-            </div>
-            
-            <button onclick="finishLogin()" class="w-full py-3.5 bg-[#0a1628] text-white border-none rounded-[4px] text-sm font-bold cursor-pointer mb-10 transition-colors duration-200 hover:bg-[#1a2a40]">Ingresar</button>
-            
-            <p class="text-[11px] text-[#9ca3af] leading-relaxed mb-6">Al ingresar, usted acepta los términos de uso y políticas de privacidad de la Universidad Católica Americana.</p>
-            
-            <div class="flex justify-center gap-5 text-[11px] font-bold text-[#0a1628]">
-                <a href="#" class="flex items-center gap-1.5 no-underline hover:text-[#1a2a40]"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Soporte Institucional</a>
-            </div>
+            <!-- Footer -->
+            <p class="text-[9px] text-[#9ca3af] font-medium text-center leading-relaxed mt-auto mx-4 pb-4">
+                Al ingresar, aceptas los términos de<br>convivencia y privacidad del Programa de<br>Bienestar Estudiantil.
+            </p>
         </div>
     </div>
 
