@@ -18,6 +18,20 @@ const UI = {
         }
     },
 
+    toggleSidebar: () => {
+        const sidebar = document.getElementById('mobile-sidebar');
+        const overlay = document.getElementById('mobile-overlay');
+        if (sidebar && overlay) {
+            if (sidebar.classList.contains('-translate-x-full')) {
+                sidebar.classList.remove('-translate-x-full');
+                overlay.classList.remove('hidden');
+            } else {
+                sidebar.classList.add('-translate-x-full');
+                overlay.classList.add('hidden');
+            }
+        }
+    },
+
     setActiveNavItem: (pageId) => {
         document.querySelectorAll('.sidebar-nav-item').forEach(item => {
             if (item.getAttribute('data-page') === pageId) {
