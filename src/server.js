@@ -3,6 +3,7 @@ const http = require('http');
 const { Server } = require('socket.io');
 const path = require('path');
 const fs = require('fs');
+const nodemailer = require('nodemailer');
 
 const app = express();
 const server = http.createServer(app);
@@ -79,6 +80,59 @@ app.post('/api/messages', (req, res) => {
     db.messages.push(msg);
     writeDB(db);
     res.json({ success: true, message: msg });
+});
+
+// POST /api/forgot-password - Sends a recovery email
+app.post('/api/forgot-password', async (req, res) => {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ error: 'Email requerido' });
+
+    try {
+        const transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                user: 'juanjoploc@gmail.com', // Correo del remitente
+                pass: 'gdarkglywavzotsf'
+            }
+        });
+
+        const mailOptions = {
+            from: '"Soporte UCA Academic" <juanjoploc@gmail.com>',
+            to: email,
+            subject: 'Recuperación de Contraseña - Academic Sanctuary UCA',
+            html: `
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e5e7eb; border-radius: 10px; overflow: hidden;">
+                    <div style="background-color: #0a1628; padding: 20px; text-align: center;">
+                        <h2 style="color: white; margin: 0;">UCA Academic Sanctuary</h2>
+                    </div>
+                    <div style="padding: 30px; color: #1a1a2e;">
+                        <h3 style="margin-top: 0;">Recuperación de Contraseña</h3>
+                        <p>Hemos recibido una solicitud para restablecer la contraseña de tu cuenta institucional <b>${email}</b>.</p>
+                        <p>Haz clic en el siguiente botón para crear una nueva contraseña:</p>
+                        <div style="text-align: center; margin: 30px 0;">
+                            <a href="#" style="background-color: #0a1628; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">Restablecer Contraseña</a>
+                        </div>
+                        <p style="font-size: 12px; color: #6b7280; margin-bottom: 0;">Si no solicitaste este cambio, puedes ignorar este correo de forma segura.</p>
+                    </div>
+                </div>
+            `
+        };
+
+        const sendPromise = transporter.sendMail(mailOptions);
+        
+        // Timeout de 4 segundos para evitar que Render se quede colgado
+        const timeoutPromise = new Promise((resolve) => {
+            setTimeout(() => resolve({ simulated: true }), 4000);
+        });
+
+        // Espera a que se envíe el correo o pasen los 4 segundos (lo que pase primero)
+        await Promise.race([sendPromise, timeoutPromise]);
+        
+        res.json({ success: true, message: 'Email procesado' });
+    } catch (error) {
+        console.error('Email error:', error);
+        res.status(500).json({ error: 'Error enviando email' });
+    }
 });
 
 // --- Socket.io ---

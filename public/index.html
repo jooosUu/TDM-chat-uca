@@ -122,11 +122,11 @@
                 <label class="block text-[11px] font-bold text-[#4b5563] mb-2 tracking-[0.5px]">CORREO INSTITUCIONAL</label>
                 <div class="relative flex items-center">
                     <svg class="absolute left-3 w-4 h-4 stroke-[#9ca3af] fill-none stroke-2" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-                    <input type="email" placeholder="usuario@uca.edu" class="w-full py-3 pl-10 pr-3 bg-[#f3f4f6] border border-transparent rounded-[4px] text-sm text-[#1a1a2e] transition-all duration-200 focus:bg-white focus:border-[#0a1628] outline-none">
+                    <input id="forgot-email-input" type="email" placeholder="usuario@uca.edu" class="w-full py-3 pl-10 pr-3 bg-[#f3f4f6] border border-transparent rounded-[4px] text-sm text-[#1a1a2e] transition-all duration-200 focus:bg-white focus:border-[#0a1628] outline-none">
                 </div>
             </div>
             
-            <button onclick="UI.showToast('Instrucciones enviadas al correo', true); UI.toggleVisibility('page-forgot-password', false); UI.toggleVisibility('page-login', true)" class="w-full py-3.5 bg-[#0a1628] text-white border-none rounded-[4px] text-sm font-bold cursor-pointer mb-6 transition-colors duration-200 hover:bg-[#1a2a40]">Enviar Instrucciones</button>
+            <button id="btn-recover" onclick="recoverPassword()" class="w-full py-3.5 bg-[#0a1628] text-white border-none rounded-[4px] text-sm font-bold cursor-pointer mb-6 transition-colors duration-200 hover:bg-[#1a2a40]">Enviar Instrucciones</button>
             
             <a href="#" onclick="UI.toggleVisibility('page-forgot-password', false); UI.toggleVisibility('page-login', true)" class="text-[12px] font-bold text-[#0a1628] no-underline flex items-center justify-center gap-1.5 hover:underline"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg> Volver al inicio de sesión</a>
         </div>
@@ -134,5 +134,42 @@
 
     <script src="js/ui/ui.js"></script>
     <script src="js/main.js"></script>
+    <script>
+        async function recoverPassword() {
+            const emailInput = document.getElementById('forgot-email-input');
+            const email = emailInput.value.trim();
+            if (!email) {
+                UI.showToast('Por favor, ingresa tu correo', false);
+                return;
+            }
+
+            const btn = document.getElementById('btn-recover');
+            const originalText = btn.innerText;
+            btn.innerText = 'Enviando...';
+            btn.disabled = true;
+
+            try {
+                const response = await fetch('/api/forgot-password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+                
+                if (response.ok) {
+                    UI.showToast('Instrucciones enviadas al correo', true);
+                    UI.toggleVisibility('page-forgot-password', false);
+                    UI.toggleVisibility('page-login', true);
+                    emailInput.value = '';
+                } else {
+                    UI.showToast('Error al enviar el correo. Revisa el servidor.', false);
+                }
+            } catch (error) {
+                UI.showToast('Error de conexión', false);
+            } finally {
+                btn.innerText = originalText;
+                btn.disabled = false;
+            }
+        }
+    </script>
 </body>
 </html>
