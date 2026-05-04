@@ -23,8 +23,17 @@ const StudentService = {
             const text = chatInput.value.trim();
             if (!text) return;
 
+            let senderName = 'Carlos Morales';
+            const googleUserData = localStorage.getItem('googleUser');
+            if (googleUserData) {
+                try {
+                    const user = JSON.parse(googleUserData);
+                    senderName = user.name;
+                } catch(e) {}
+            }
+
             const msgData = {
-                sender: 'Carlos Morales',
+                sender: senderName,
                 role: 'student',
                 text: text,
                 timestamp: new Date().toISOString()

@@ -4,12 +4,75 @@ function enterAsStudent() {
     selectedRole = 'student';
     UI.toggleVisibility('page-profile', false);
     UI.toggleVisibility('page-login', true);
+    renderGoogleButton();
 }
 
 function enterAsMonitor() {
     selectedRole = 'monitor';
     UI.toggleVisibility('page-profile', false);
     UI.toggleVisibility('page-login', true);
+    renderGoogleButton();
+}
+
+// Configuración de Google Identity Services
+const GOOGLE_CLIENT_ID = '912209516306-a84sob4kp9gu740bd44am8dgfa6gr7ha.apps.googleusercontent.com';
+
+function renderGoogleButton() {
+    // Verificamos si la librería de Google ya cargó
+    if (window.google && window.google.accounts) {
+        google.accounts.id.initialize({
+            client_id: GOOGLE_CLIENT_ID,
+            callback: handleCredentialResponse
+        });
+
+        google.accounts.id.renderButton(
+            document.getElementById("buttonDiv"),
+            { theme: "outline", size: "large", text: "continue_with", width: "100%" }
+        );
+    } else {
+        // Si no ha cargado, intentamos de nuevo en 500ms
+        setTimeout(renderGoogleButton, 500);
+    }
+}
+
+function handleCredentialResponse(response) {
+    // Decodificar el token JWT que nos devuelve Google
+    const responsePayload = decodeJwtResponse(response.credential);
+
+    console.log("ID: " + responsePayload.sub);
+    console.log('Full Name: ' + responsePayload.name);
+    console.log('Given Name: ' + responsePayload.given_name);
+    console.log('Family Name: ' + responsePayload.family_name);
+    console.log("Image URL: " + responsePayload.picture);
+    console.log("Email: " + responsePayload.email);
+
+    // Opcional: Validar que el correo sea @uca.edu
+    /*
+    if (!responsePayload.email.endsWith('@uca.edu')) {
+        alert('Por favor, ingresa con tu correo institucional de la UCA.');
+        return;
+    }
+    */
+
+    // Guardar datos en localStorage para usarlos en el chat
+    localStorage.setItem('googleUser', JSON.stringify({
+        name: responsePayload.name,
+        email: responsePayload.email,
+        picture: responsePayload.picture
+    }));
+
+    finishLogin();
+}
+
+// Función para decodificar JWT sin librerías externas
+function decodeJwtResponse(token) {
+    var base64Url = token.split('.')[1];
+    var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    var jsonPayload = decodeURIComponent(atob(base64).split('').map(function (c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
+
+    return JSON.parse(jsonPayload);
 }
 
 function finishLogin() {
@@ -67,12 +130,12 @@ function renderMyBubble(text, timestamp, container, role) {
     }
 }
 
-function renderOtherBubble(text, timestamp, container, senderRole) {
+function renderOtherBubble(text, timestamp, container, senderRole, senderNameOverride) {
     const time = timestamp
         ? new Date(timestamp).toLocaleTimeString('es', { hour: '2-digit', minute: '2-digit' })
         : new Date().toLocaleTimeString('es', { hour: '2-digit', minute: '2-digit' });
 
-    const senderName = senderRole === 'monitor' ? 'Monitor Académico' : 'Carlos Morales';
+    const senderName = senderNameOverride || (senderRole === 'monitor' ? 'Monitor Académico' : 'Carlos Morales');
 
     if (currentRole === 'monitor') {
         // Monitor sees student messages on the left with avatar
@@ -233,8 +296,17 @@ document.addEventListener('DOMContentLoaded', () => {
         const text = inputEl.value.trim();
         if (!text) return;
 
+        let senderName = currentRole === 'monitor' ? 'Monitor Académico' : 'Carlos Morales';
+        const googleUserData = localStorage.getItem('googleUser');
+        if (googleUserData) {
+            try {
+                const user = JSON.parse(googleUserData);
+                senderName = user.name;
+            } catch(e) {}
+        }
+
         const msgData = {
-            sender: currentRole === 'monitor' ? 'Monitor Académico' : 'Carlos Morales',
+            sender: senderName,
             role: currentRole,
             text: text,
             timestamp: new Date().toISOString()
@@ -302,7 +374,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 container.insertAdjacentHTML('beforeend', `
                     <div class="flex flex-col items-end ml-auto max-w-[80%]">
                         <div class="flex items-center gap-2 mb-2 mr-1">
-                            <span class="text-[9px] text-gray-400">${new Date().toLocaleTimeString('es', {hour:'2-digit', minute:'2-digit'})}</span>
+                            <span class="text-[9px] text-gray-400">${new Date().toLocaleTimeString('es', { hour: '2-digit', minute: '2-digit' })}</span>
                             <span class="text-[10px] font-bold text-gray-600 uppercase tracking-widest">Tú</span>
                         </div>
                         <div class="bg-white border border-[#e5e7eb] p-4 rounded-2xl rounded-tr-none shadow-sm flex items-center gap-4">
@@ -334,7 +406,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 renderMyBubble(msg.text, msg.timestamp, chatArea, currentRole);
             } else {
                 // It's the other person's message
-                renderOtherBubble(msg.text, msg.timestamp, chatArea, msg.role);
+                renderOtherBubble(msg.text, msg.timestamp, chatArea, msg.role, msg.sender);
             }
             chatArea.scrollTop = chatArea.scrollHeight;
         });
@@ -359,4 +431,48 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ===== LOAD DATA ON INIT =====
     loadPersistedData();
+    applyGoogleUserData();
 });
+
+// ===== GOOGLE USER DATA BINDING =====
+function applyGoogleUserData() {
+    const googleUserData = localStorage.getItem('googleUser');
+    if (!googleUserData) return;
+
+    try {
+        const user = JSON.parse(googleUserData);
+        const givenName = user.name.split(' ')[0] || user.name;
+        
+        // Actualizar el saludo principal
+        document.querySelectorAll('h1').forEach(h1 => {
+            if (h1.textContent.includes('Buenos días')) {
+                h1.innerHTML = `Buenos días, ${givenName}`;
+            }
+        });
+
+        // Actualizar el input con el nombre completo en configuración
+        const inputs = document.querySelectorAll('input[disabled]');
+        inputs.forEach(input => {
+            if (input.value.includes('Carlos Morales') || input.value.includes('Monitor Académico') || input.type === 'text') {
+                if (input.closest('.bg-white') && input.disabled) {
+                    input.value = user.name;
+                }
+            }
+        });
+
+        // Actualizar avatares
+        const settingsAvatar = document.getElementById('settings-avatar');
+        if (settingsAvatar && user.picture) {
+            settingsAvatar.src = user.picture;
+        }
+
+        document.querySelectorAll('.user-avatar').forEach(img => {
+            if (user.picture) {
+                img.src = user.picture;
+            }
+        });
+        
+    } catch (e) {
+        console.error('Error applying Google user data', e);
+    }
+}

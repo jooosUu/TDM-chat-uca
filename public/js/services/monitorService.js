@@ -23,8 +23,17 @@ const MonitorService = {
             const text = chatInput.value.trim();
             if (!text) return;
 
+            let senderName = 'Monitor Académico';
+            const googleUserData = localStorage.getItem('googleUser');
+            if (googleUserData) {
+                try {
+                    const user = JSON.parse(googleUserData);
+                    senderName = user.name;
+                } catch(e) {}
+            }
+
             const msgData = {
-                sender: 'Monitor Académico',
+                sender: senderName,
                 role: 'monitor',
                 text: text,
                 timestamp: new Date().toISOString()
